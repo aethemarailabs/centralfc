@@ -8,10 +8,14 @@ import { clsx } from "clsx";
 export default function BottomNav() {
   const pathname = usePathname();
 
+  if (pathname === "/login" || pathname === "/join" || pathname === "/profile" || pathname.endsWith("/new")) {
+    return null;
+  }
+
   const navItems = [
     { href: "/", label: "홈", icon: Home },
     { href: "/squad", label: "선수단", icon: Users },
-    { href: "/matches", label: "경기일정", icon: CalendarDays },
+    { href: "/matches", label: "친선 경기", icon: CalendarDays },
     { href: "/gallery", label: "갤러리", icon: ImageIcon },
   ];
 

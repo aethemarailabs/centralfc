@@ -7,9 +7,33 @@ import BottomNav from "@/components/layout/BottomNav";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const notoSansKr = Noto_Sans_KR({ subsets: ["latin"], variable: "--font-noto-sans-kr" });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+  ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null)
+  ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+  ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Central FC",
-  description: "부산 남구 조기축구회 중앙FC",
+  description: "안양 평촌 조기축구회 중앙 FC",
+  openGraph: {
+    title: "Central FC",
+    description: "안양 평촌 조기축구회 중앙 FC",
+    locale: "ko_KR",
+    type: "website",
+    images: [
+      {
+        url: "/hero-image.jpg",
+        alt: "Central FC (평촌 중앙 FC)",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Central FC",
+    description: "안양 평촌 조기축구회 중앙 FC",
+    images: ["/hero-image.jpg"],
+  },
 };
 
 export default function RootLayout({
