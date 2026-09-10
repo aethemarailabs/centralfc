@@ -28,9 +28,10 @@ function parseOptionalPosition(raw: string, label: string): { value: Position | 
   return { value };
 }
 
-function validatePlayerFields(formData: FormData):
+function validatePlayerFields(formData: FormData, values: Record<string, string>):
   | {
-      error: string;
+      fieldErrors: Record<string, string>;
+      error?: string;
     }
   | {
       displayName: string;
@@ -41,41 +42,47 @@ function validatePlayerFields(formData: FormData):
       heightCm: number;
       weightKg: number;
     } {
-  const displayName = readString(formData, "displayName");
-  const jerseyNumber = Number(readString(formData, "jerseyNumber"));
-  const heightCm = Number(readString(formData, "heightCm"));
-  const weightKg = Number(readString(formData, "weightKg"));
-  const primaryPosition = parsePosition(readString(formData, "primaryPosition"));
-  const secondary = parseOptionalPosition(readString(formData, "secondaryPosition"), "부포지션1");
-  const secondary2 = parseOptionalPosition(readString(formData, "secondaryPosition2"), "부포지션2");
+  const displayName = values.displayName;
+  const jerseyNumber = Number(values.jerseyNumber);
+  const heightCm = Number(values.heightCm);
+  const weightKg = Number(values.weightKg);
+  const primaryPosition = parsePosition(values.primaryPosition);
+  const secondary = parseOptionalPosition(values.secondaryPosition, "부포지션1");
+  const secondary2 = parseOptionalPosition(values.secondaryPosition2, "부포지션2");
+
+  const fieldErrors: Record<string, string> = {};
 
   if (!displayName) {
-    return { error: "이름을 입력해 주세요." };
+    fieldErrors.displayName = "이름을 입력해 주세요.";
   }
   if (!Number.isInteger(jerseyNumber) || jerseyNumber < 1 || jerseyNumber > 99) {
-    return { error: "등번호는 1~99 사이 숫자로 입력해 주세요." };
+    fieldErrors.jerseyNumber = "등번호는 1~99 사이 숫자로 입력해 주세요.";
   }
   if (!primaryPosition) {
-    return { error: "주포지션을 선택해 주세요." };
+    fieldErrors.primaryPosition = "주포지션을 선택해 주세요.";
   }
-  if (secondary.error) return { error: secondary.error };
-  if (secondary2.error) return { error: secondary2.error };
+  if (secondary.error) fieldErrors.secondaryPosition = secondary.error;
+  if (secondary2.error) fieldErrors.secondaryPosition2 = secondary2.error;
 
   const picked = [primaryPosition, secondary.value, secondary2.value].filter(Boolean);
   if (new Set(picked).size !== picked.length) {
-    return { error: "주포지션과 부포지션은 서로 다르게 선택해 주세요." };
+    fieldErrors.primaryPosition = "주포지션과 부포지션은 서로 다르게 선택해 주세요.";
   }
   if (!Number.isInteger(heightCm) || heightCm < 100 || heightCm > 230) {
-    return { error: "키는 100~230cm 사이로 입력해 주세요." };
+    fieldErrors.heightCm = "키는 100~230cm 사이로 입력해 주세요.";
   }
   if (!Number.isInteger(weightKg) || weightKg < 30 || weightKg > 180) {
-    return { error: "몸무게는 30~180kg 사이로 입력해 주세요." };
+    fieldErrors.weightKg = "몸무게는 30~180kg 사이로 입력해 주세요.";
+  }
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
   }
 
   return {
     displayName,
     jerseyNumber,
-    primaryPosition,
+    primaryPosition: primaryPosition as Position,
     secondaryPosition: secondary.value,
     secondaryPosition2: secondary2.value,
     heightCm,
@@ -104,25 +111,43 @@ export async function signupAction(_prev: AuthFormState, formData: FormData): Pr
   const username = readString(formData, "username").toLowerCase();
   const password = String(formData.get("password") ?? "");
   const passwordConfirm = String(formData.get("passwordConfirm") ?? "");
-  const fields = validatePlayerFields(formData);
-  const photo = readOptionalPhoto(formData);
+  
+  const values = {
+    username,
+    displayName: readString(formData, "displayName"),
+    jerseyNumber: readString(formData, "jerseyNumber"),
+    heightCm: readString(formData, "heightCm"),
+    weightKg: readString(formData, "weightKg"),
+    primaryPosition: readString(formData, "primaryPosition"),
+    secondaryPosition: readString(formData, "secondaryPosition"),
+    secondaryPosition2: readString(formData, "secondaryPosition2"),
+  };
+
+  const fieldErrors: Record<string, string> = {};
 
   if (!USERNAME_PATTERN.test(username)) {
-    return { error: "아이디는 영문, 숫자, _ 를 사용해 4~20자로 입력해 주세요." };
+    fieldErrors.username = "아이디는 영문, 숫자, _ 를 사용해 4~20자로 입력해 주세요.";
   }
   if (username === MASTER_USERNAME) {
-    return { error: "사용할 수 없는 아이디입니다." };
+    fieldErrors.username = "사용할 수 없는 아이디입니다.";
   }
   if (password.length < 4) {
-    return { error: "비밀번호는 4자 이상이어야 합니다." };
+    fieldErrors.password = "비밀번호는 4자 이상이어야 합니다.";
   }
   if (password !== passwordConfirm) {
-    return { error: "비밀번호 확인이 일치하지 않습니다." };
-  }
-  if ("error" in fields) {
-    return { error: fields.error };
+    fieldErrors.passwordConfirm = "비밀번호 확인이 일치하지 않습니다.";
   }
 
+  const fields = validatePlayerFields(formData, values);
+  if ("fieldErrors" in fields) {
+    Object.assign(fieldErrors, fields.fieldErrors);
+  }
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors, values, error: "입력된 정보를 확인해 주세요." };
+  }
+
+  const photo = readOptionalPhoto(formData);
   let photoPath: string | null = null;
   try {
     if (photo) {
@@ -132,7 +157,7 @@ export async function signupAction(_prev: AuthFormState, formData: FormData): Pr
     const member = await createPlayer({
       username,
       password,
-      ...fields,
+      ...(fields as any),
       photoPath,
     });
     await createSession(toSessionUser({ ...member, username: member.username }));
@@ -140,7 +165,7 @@ export async function signupAction(_prev: AuthFormState, formData: FormData): Pr
     if (photoPath) {
       await removeMemberPhoto(photoPath);
     }
-    return { error: error instanceof Error ? error.message : "회원가입에 실패했습니다." };
+    return { error: error instanceof Error ? error.message : "회원가입에 실패했습니다.", values };
   }
 
   revalidatePath("/squad");
@@ -155,9 +180,21 @@ export async function updateProfileAction(_prev: AuthFormState, formData: FormDa
     return { error: "로그인 후 정보를 수정할 수 있습니다." };
   }
 
-  const fields = validatePlayerFields(formData);
-  if ("error" in fields) {
-    return { error: fields.error };
+  const values = {
+    displayName: readString(formData, "displayName"),
+    jerseyNumber: readString(formData, "jerseyNumber"),
+    heightCm: readString(formData, "heightCm"),
+    weightKg: readString(formData, "weightKg"),
+    primaryPosition: readString(formData, "primaryPosition"),
+    secondaryPosition: readString(formData, "secondaryPosition"),
+    secondaryPosition2: readString(formData, "secondaryPosition2"),
+  };
+
+  const fields = validatePlayerFields(formData, values);
+  if ("fieldErrors" in fields) {
+    // Collect all field errors into a single string or just return the first one
+    const errorMsg = Object.values(fields.fieldErrors)[0] || "입력된 정보를 확인해 주세요.";
+    return { error: errorMsg, fieldErrors: fields.fieldErrors, values };
   }
 
   const photo = readOptionalPhoto(formData);

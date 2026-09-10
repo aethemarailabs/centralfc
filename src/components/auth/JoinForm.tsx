@@ -29,9 +29,11 @@ export default function JoinForm() {
               type="text"
               autoComplete="username"
               placeholder="영문, 숫자, _ 4~20자"
-              className={fieldClass}
+              defaultValue={state.values?.username}
+              className={`${fieldClass} ${state.fieldErrors?.username ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
               required
             />
+            {state.fieldErrors?.username && <p className="text-red-500 text-[10px] mt-1">{state.fieldErrors.username}</p>}
           </div>
           <div>
             <label htmlFor="password" className="block text-xs font-bold text-gray-700 mb-1">
@@ -43,9 +45,10 @@ export default function JoinForm() {
               type="password"
               autoComplete="new-password"
               placeholder="4자 이상"
-              className={fieldClass}
+              className={`${fieldClass} ${state.fieldErrors?.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
               required
             />
+            {state.fieldErrors?.password && <p className="text-red-500 text-[10px] mt-1">{state.fieldErrors.password}</p>}
           </div>
           <div>
             <label htmlFor="passwordConfirm" className="block text-xs font-bold text-gray-700 mb-1">
@@ -57,9 +60,10 @@ export default function JoinForm() {
               type="password"
               autoComplete="new-password"
               placeholder="비밀번호를 다시 입력"
-              className={fieldClass}
+              className={`${fieldClass} ${state.fieldErrors?.passwordConfirm ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
               required
             />
+            {state.fieldErrors?.passwordConfirm && <p className="text-red-500 text-[10px] mt-1">{state.fieldErrors.passwordConfirm}</p>}
           </div>
         </div>
       </section>
@@ -82,9 +86,11 @@ export default function JoinForm() {
               name="displayName"
               type="text"
               placeholder="예: 홍길동"
-              className={fieldClass}
+              defaultValue={state.values?.displayName}
+              className={`${fieldClass} ${state.fieldErrors?.displayName ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
               required
             />
+            {state.fieldErrors?.displayName && <p className="text-red-500 text-[10px] mt-1">{state.fieldErrors.displayName}</p>}
           </div>
 
           <div>
@@ -98,12 +104,21 @@ export default function JoinForm() {
               min={1}
               max={99}
               placeholder="예: 10"
-              className={fieldClass}
+              defaultValue={state.values?.jerseyNumber}
+              className={`${fieldClass} ${state.fieldErrors?.jerseyNumber ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
               required
             />
+            {state.fieldErrors?.jerseyNumber && <p className="text-red-500 text-[10px] mt-1">{state.fieldErrors.jerseyNumber}</p>}
           </div>
 
-          <PositionFields />
+          <PositionFields 
+            primaryDefault={state.values?.primaryPosition} 
+            secondaryDefault={state.values?.secondaryPosition}
+            secondary2Default={state.values?.secondaryPosition2}
+          />
+          {state.fieldErrors?.primaryPosition && <p className="text-red-500 text-[10px] mt-1">{state.fieldErrors.primaryPosition}</p>}
+          {state.fieldErrors?.secondaryPosition && <p className="text-red-500 text-[10px] mt-1">{state.fieldErrors.secondaryPosition}</p>}
+          {state.fieldErrors?.secondaryPosition2 && <p className="text-red-500 text-[10px] mt-1">{state.fieldErrors.secondaryPosition2}</p>}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -117,9 +132,11 @@ export default function JoinForm() {
                 min={100}
                 max={230}
                 placeholder="180"
-                className={fieldClass}
+                defaultValue={state.values?.heightCm}
+                className={`${fieldClass} ${state.fieldErrors?.heightCm ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                 required
               />
+              {state.fieldErrors?.heightCm && <p className="text-red-500 text-[10px] mt-1">{state.fieldErrors.heightCm}</p>}
             </div>
             <div>
               <label htmlFor="weightKg" className="block text-xs font-bold text-gray-700 mb-1">
@@ -132,9 +149,11 @@ export default function JoinForm() {
                 min={30}
                 max={180}
                 placeholder="75"
-                className={fieldClass}
+                defaultValue={state.values?.weightKg}
+                className={`${fieldClass} ${state.fieldErrors?.weightKg ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                 required
               />
+              {state.fieldErrors?.weightKg && <p className="text-red-500 text-[10px] mt-1">{state.fieldErrors.weightKg}</p>}
             </div>
           </div>
         </div>

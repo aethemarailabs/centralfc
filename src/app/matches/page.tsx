@@ -3,11 +3,12 @@ import { CalendarDays } from "lucide-react";
 import MatchesBoard from "@/components/matches/MatchesBoard";
 import { canModerateAll, canPublishClubContent } from "@/lib/auth/permissions";
 import { getSession } from "@/lib/auth/session";
-import { listMatches } from "@/lib/content/store";
+import { listMatches, listAllMatchAttendances } from "@/lib/content/store";
 
 export default async function Matches() {
   const session = await getSession();
   const matches = await listMatches();
+  const attendances = await listAllMatchAttendances();
 
   return (
     <div className="flex flex-col bg-gray-50 min-h-screen pb-20">
@@ -22,7 +23,12 @@ export default async function Matches() {
         )}
       </div>
 
-      <MatchesBoard matches={matches} canDelete={canModerateAll(session)} />
+      <MatchesBoard 
+        matches={matches} 
+        canDelete={canModerateAll(session)} 
+        currentMemberId={session?.id ?? null}
+        attendances={attendances}
+      />
     </div>
   );
 }

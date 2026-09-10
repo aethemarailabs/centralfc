@@ -178,3 +178,24 @@ export async function deleteNewsAction(formData: FormData): Promise<void> {
   await deleteNewsRecord(session.id, newsId);
   refreshContent();
 }
+
+export async function voteAttendanceAction(formData: FormData): Promise<void> {
+  const session = await getSession();
+  if (!session) return;
+
+  const matchId = Number(readString(formData, "matchId"));
+  const status = readString(formData, "status") as import("@/lib/content/types").AttendanceStatus;
+
+  if (!Number.isInteger(matchId) || !["attending", "absent", "pending"].includes(status)) {
+    return;
+  }
+
+  try {
+    const { voteMatchAttendance } = await import("@/lib/content/store");
+    await voteMatchAttendance(session.id, matchId, status);
+  } catch (error) {
+    console.error("Failed to vote:", error);
+  }
+
+  refreshContent();
+}

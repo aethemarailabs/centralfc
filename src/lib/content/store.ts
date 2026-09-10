@@ -106,3 +106,52 @@ export async function deleteNewsRecord(memberId: number, newsId: number): Promis
   });
   if (error) rpcError(error, "소식 삭제에 실패했습니다.");
 }
+
+export async function voteMatchAttendance(
+  memberId: number,
+  matchId: number,
+  status: import('./types').AttendanceStatus
+): Promise<void> {
+  const supabase = createClubClient();
+  const { error } = await supabase.rpc("club_vote_match_attendance", {
+    p_secret: getClubAppSecret(),
+    p_member_id: memberId,
+    p_match_id: matchId,
+    p_status: status,
+  });
+  if (error) rpcError(error, "���� ��ǥ�� �����߽��ϴ�.");
+}
+
+export async function listMatchAttendances(matchId: number): Promise<import('./types').MatchAttendance[]> {
+  const supabase = createClubClient();
+  const { data, error } = await supabase.rpc("club_list_match_attendances", {
+    p_match_id: matchId,
+  });
+  if (error) rpcError(error, "���� ������ �ҷ����� ���߽��ϴ�.");
+  
+  return ((data as any[]) ?? []).map(row => ({
+    matchId: row.match_id,
+    memberId: row.member_id,
+    status: row.status,
+    updatedAt: row.updated_at,
+    displayName: row.display_name,
+    photoPath: row.photo_path,
+    primaryPosition: row.primary_position
+  }));
+}
+
+export async function listAllMatchAttendances(): Promise<import('./types').MatchAttendance[]> {
+  const supabase = createClubClient();
+  const { data, error } = await supabase.rpc("club_list_all_match_attendances");
+  if (error) return [];
+  
+  return ((data as any[]) ?? []).map(row => ({
+    matchId: row.match_id,
+    memberId: row.member_id,
+    status: row.status,
+    updatedAt: row.updated_at,
+    displayName: row.display_name,
+    photoPath: row.photo_path,
+    primaryPosition: row.primary_position
+  }));
+}

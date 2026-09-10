@@ -34,3 +34,15 @@ export type NewsPost = {
 export type ContentFormState = {
   error?: string;
 };
+
+export type AttendanceStatus = "attending" | "absent" | "pending";
+
+export type MatchAttendance = {
+  matchId: number;
+  memberId: number;
+  status: AttendanceStatus;
+  updatedAt: string;
+  displayName: string;
+  photoPath: string | null;
+  primaryPosition: string;
+};

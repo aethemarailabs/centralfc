@@ -54,6 +54,8 @@ export type SessionUser = {
 
 export type AuthFormState = {
   error?: string;
+  fieldErrors?: Record<string, string>;
+  values?: Record<string, string>;
   success?: string;
 };
 

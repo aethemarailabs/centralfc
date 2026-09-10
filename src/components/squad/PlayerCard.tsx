@@ -35,71 +35,73 @@ export default function PlayerCard({ player }: { player: PublicMember }) {
       <div
         className={
           isManager
-            ? "relative h-full overflow-hidden rounded-[16px] bg-gradient-to-b from-[#3d2d0c] via-[#1C2B59] to-[#0a1024]"
-            : "relative h-full overflow-hidden rounded-[16px] bg-gradient-to-b from-[#243868] via-[#1C2B59] to-[#070b18]"
+            ? "relative h-full overflow-hidden rounded-[16px] bg-[#0a1024]"
+            : "relative h-full overflow-hidden rounded-[16px] bg-[#070b18]"
         }
       >
-        <div className={`absolute inset-x-0 top-0 h-28 bg-gradient-to-b ${style.glow} to-transparent`} />
+        {/* Full background photo */}
+        {photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photoUrl}
+            alt={player.displayName}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white/20 bg-white/10 text-3xl font-black text-white/80">
+              {player.displayName.slice(0, 1)}
+            </div>
+          </div>
+        )}
+
+        {/* Gradient Overlay for Text Legibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/10 to-black/90 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+        
+        <div className={`absolute inset-x-0 top-0 h-28 bg-gradient-to-b ${style.glow} to-transparent opacity-90 mix-blend-screen`} />
 
         <div className="relative z-10 flex items-start justify-between px-2.5 pt-2.5">
           <div className="flex flex-col leading-none">
-            <span className="text-[28px] font-black italic text-[#F8E7A0] drop-shadow-md">
+            <span className="text-[28px] font-black italic text-[#F8E7A0] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               {player.jerseyNumber ?? "-"}
             </span>
-            <span className={`mt-0.5 w-fit px-1.5 py-0.5 rounded text-[10px] font-black tracking-wider ${style.badge}`}>
+            <span className={`mt-0.5 w-fit px-1.5 py-0.5 rounded text-[10px] font-black tracking-wider shadow-md ${style.badge}`}>
               {player.primaryPosition ?? "—"}
             </span>
           </div>
-          <div className="text-right">
-            <p className="text-[8px] font-bold uppercase tracking-[0.18em] text-white/55">Central</p>
+          <div className="text-right drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            <p className="text-[8px] font-bold uppercase tracking-[0.18em] text-white/90">Central</p>
             <p className="text-[9px] font-black text-[#F8E7A0]">FC</p>
           </div>
         </div>
 
-        <div className="absolute inset-x-0 top-16 bottom-20">
-          {photoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={photoUrl}
-              alt={player.displayName}
-              className="h-full w-full object-cover object-top"
-            />
-          ) : (
-            <div className="flex h-full items-end justify-center">
-              <div className="mb-2 flex h-24 w-24 items-center justify-center rounded-full border-4 border-white/20 bg-white/10 text-3xl font-black text-white/80">
-                {player.displayName.slice(0, 1)}
-              </div>
-            </div>
-          )}
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0a1024] to-transparent" />
-        </div>
-
-        <div className="absolute inset-x-0 bottom-0 z-10 px-2.5 pb-2.5 pt-8 bg-gradient-to-t from-[#070b18] via-[#070b18]/95 to-transparent">
-          <h3 className="truncate text-center text-[15px] font-black tracking-tight text-white">
+        <div className="absolute inset-x-0 bottom-0 z-10 px-2.5 pb-2.5 pt-6 bg-gradient-to-t from-black via-black/90 to-transparent">
+          <h3 className="truncate text-center text-[15px] font-black tracking-tight text-white drop-shadow-md">
             {player.displayName}
           </h3>
-          <p className="mt-0.5 truncate text-center text-[9px] font-bold text-white/55">
+          <p className="mt-0.5 truncate text-center text-[9px] font-bold text-white/70">
             {positionName(player.primaryPosition)}
           </p>
 
-          <div className="mt-2 grid grid-cols-2 gap-1 text-center">
-            <div className="rounded bg-white/10 py-1">
-              <p className="text-[8px] font-bold text-white/45">키</p>
-              <p className="text-[11px] font-black text-white">{player.heightCm ?? "-"}</p>
+          <div className="mt-1.5 flex items-center justify-center gap-2">
+            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded-full border border-white/10">
+              <span className="text-[7px] font-bold text-white/60">키</span>
+              <span className="text-[9px] font-black text-white/90">{player.heightCm ? `${player.heightCm}` : "-"}</span>
             </div>
-            <div className="rounded bg-white/10 py-1">
-              <p className="text-[8px] font-bold text-white/45">몸무게</p>
-              <p className="text-[11px] font-black text-white">{player.weightKg ?? "-"}</p>
+            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded-full border border-white/10">
+              <span className="text-[7px] font-bold text-white/60">몸무게</span>
+              <span className="text-[9px] font-black text-white/90">{player.weightKg ? `${player.weightKg}` : "-"}</span>
             </div>
           </div>
 
-          <div className="mt-1.5 flex min-h-5 items-center justify-center gap-1">
+          <div className="mt-1.5 flex min-h-4 items-center justify-center gap-1">
             {player.secondaryPosition ? <SubChip position={player.secondaryPosition} /> : null}
             {player.secondaryPosition2 ? <SubChip position={player.secondaryPosition2} /> : null}
           </div>
 
           {isManager ? (
-            <p className="mt-1 text-center text-[9px] font-black tracking-widest text-[#F8E7A0]">{title}</p>
+            <p className="mt-1 text-center text-[9px] font-black tracking-widest text-[#F8E7A0] drop-shadow-md">{title}</p>
           ) : null}
         </div>
       </div>
